@@ -17,10 +17,10 @@ class AddressModel implements Address {
 
   factory AddressModel.fromJson(Map<String, dynamic> json) {
     return AddressModel(
-      addressLine: json['address'],
-      city: json['city'],
-      zip: json['postal_code'],
-      country: json['country'],
+      addressLine: json['address'] ?? '',
+      city: json['city'] ?? '',
+      zip: json['postal_code'] ?? '',
+      country: json['country'] ?? '',
       latLong: LatLngModel.fromJson(
         json['location']['lat'],
         json['location']['lon'],

@@ -27,11 +27,10 @@ class EventCubit extends Cubit<EventState> {
     loadFavoriteEvents();
   }
   void loadEvents() async {
-    try {
-      emit(EventLoading());
-      lastFetchedEvents = await getEventUseCase();
-      emit(Eventloaded(lastFetchedEvents));
-    } catch (_) {
+    emit(EventLoading());
+    lastFetchedEvents = await getEventUseCase();
+    emit(Eventloaded(lastFetchedEvents));
+    try {} catch (_) {
       emit(EventError());
     }
   }
@@ -40,8 +39,7 @@ class EventCubit extends Cubit<EventState> {
     if (await addToFavoriteUseCase(event)) {
       favoriteEvents.add(event);
       emit(Eventloaded(List.from(lastFetchedEvents)));
-    } else {
-    }
+    } else {}
   }
 
   void removeFromFavorite(Event event) async {

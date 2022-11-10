@@ -1,3 +1,4 @@
+import 'package:dukkantek_task_taimoor/src/core/Theme/my_theme.dart';
 import 'package:dukkantek_task_taimoor/src/di.dart';
 import 'package:dukkantek_task_taimoor/src/features/events/presentation/state/event_cubit.dart';
 import 'package:flutter/material.dart';
@@ -18,9 +19,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider<EventCubit>(
       create: (_) => injector(),
-      child: const MaterialApp(
+      child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        home: EventScreen(),
+        theme: MyTheme.theme,
+        home: const EventScreen(),
       ),
     );
   }

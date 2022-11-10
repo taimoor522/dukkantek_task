@@ -15,7 +15,7 @@ class PerformerModel implements Performer {
     return PerformerModel(
       id: json['id'],
       name: json['name'],
-      image: json['image'],
+      image: json['image'] ?? '',
     );
   }
 

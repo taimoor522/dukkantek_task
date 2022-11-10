@@ -1,10 +1,13 @@
 import 'package:dukkantek_task_taimoor/src/core/Widgets/spacing.dart';
 import 'package:dukkantek_task_taimoor/src/core/constants/colors.dart';
+import 'package:dukkantek_task_taimoor/src/features/events/presentation/ui/event_detail_screen.dart';
+import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/constants/font_size.dart';
 import '../state/event_cubit.dart';
+import 'favorite_events_screen.dart';
 
 class EventScreen extends StatefulWidget {
   const EventScreen({super.key});
@@ -14,9 +17,11 @@ class EventScreen extends StatefulWidget {
 }
 
 class _EventScreenState extends State<EventScreen> {
+  late final TextEditingController _searchController;
   @override
   void initState() {
     super.initState();
+    _searchController = TextEditingController();
     context.read<EventCubit>().loadEvents();
   }
 
@@ -24,12 +29,21 @@ class _EventScreenState extends State<EventScreen> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) {
+              return const FavoriteEventScreen();
+            }));
+          },
+          child: const Icon(Icons.favorite_border_rounded, color: Colors.white),
+        ),
         body: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
             children: [
-              const MyTextFiels(
+              MyTextFiels(
                 hintText: 'Search Event',
+                controller: _searchController,
               ),
               const VerticalSpacing(height: 10),
               Expanded(
@@ -42,6 +56,16 @@ class _EventScreenState extends State<EventScreen> {
                         itemBuilder: (context, index) {
                           return Card(
                             child: ListTile(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) {
+                                    return EventDetailScreen(
+                                      event: state.events[index],
+                                    );
+                                  }),
+                                );
+                              },
                               leading: const Icon(Icons.event, color: AppColors.armyGreen),
                               title: Text(state.events[index].title),
                               trailing: GestureDetector(
@@ -82,6 +106,12 @@ class _EventScreenState extends State<EventScreen> {
       ),
     );
   }
+
+  @override
+  dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 }
 
 class MyTextFiels extends StatelessWidget {
@@ -93,6 +123,14 @@ class MyTextFiels extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextField(
       controller: controller,
+      onChanged: (String query) {
+        EasyDebounce.cancel('search');
+        EasyDebounce.debounce(
+          'search',
+          const Duration(milliseconds: 500),
+          () => context.read<EventCubit>().searchEvents(query),
+        );
+      },
       style: const TextStyle(
         fontSize: 16,
         color: AppColors.white,
@@ -124,11 +162,7 @@ class RetryButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: ElevatedButton(
-          onPressed: () => context.read<EventCubit>().loadEvents(),
-          child: const Text(
-            'Retry',
-            style: TextStyle(),
-          )),
+          onPressed: () => context.read<EventCubit>().loadEvents(), child: const Text('Retry')),
     );
   }
 }
@@ -138,8 +172,6 @@ class LoadingIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => const Center(
-        child: CircularProgressIndicator(
-          color: AppColors.armyGreen,
-        ),
+        child: CircularProgressIndicator(),
       );
 }
